@@ -1,7 +1,7 @@
 #docker #rhel #ansible
 
 
-Подгатавливаем шаблон на гипервизоре proxmox на базе Rocky Linux 
+Подгатавливаем шаблон на гипервизоре proxmox на базе Rocky Linux.
 Устанавливаем дистрибутив обычным способом на vm в proxmox.
 ```bash
 yum install cloud-init -y
