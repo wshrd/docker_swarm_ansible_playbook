@@ -1,4 +1,6 @@
-#docker #rhel #ansible 
+#docker #rhel #ansible
+
+
 Подгатавливаем шаблон на гипервизоре proxmox на базе Rocky Linux 
 Устанавливаем дистрибутив обычным способом на vm в proxmox.
 ```bash
@@ -99,7 +101,9 @@ vms:
       loop: "{{ lookup('dict', vms) }}"
       tags: [start]
 ```
-Запускаем playbook и ждем завершения выполнения
+Запускаем playbook
 ```bash
 ansible-playbook new_dsw_node.yml
 ```
+Ждем завершения выполнения.
+DONE.
