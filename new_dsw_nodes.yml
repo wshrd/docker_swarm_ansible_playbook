@@ -1,0 +1,50 @@
+---
+- name: Initial setup VM
+  hosts: localhost
+  vars_files:
+    - docker_swarm.yml
+  tasks:
+    - name: Clone VMs
+      proxmox_kvm:
+        node: "{{ node }}"
+        name: "{{ item.value.name }}"
+        newid: "{{ item.value.vmid }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ api_password }}"
+        api_host: "{{ api_host }}"
+        clone: "{{ clone_vm }}"
+        full: true
+        timeout: 500
+      loop: "{{ lookup('dict', vms) }}"
+      tags: [clone]
+    - name: Update VMs set IP and sshkeys
+      proxmox_kvm:
+        api_host: "{{ api_host }}"
+        api_user: "{{ api_user }}"
+        api_password: "{{ api_password }}"
+        cores: "{{ item.value.cores }}"
+        sockets: "{{ item.value.sockets }}"
+        memory: "{{ item.value.memory }}"
+        update: true
+        vmid: "{{ item.value.vmid }}"
+        node: "{{ node }}"
+        name: "{{ item.value.name }}"
+        nameservers: "192.168.1.4"
+        net:
+          net0: "virtio,bridge=vmbr0"
+        ipconfig:
+          ipconfig0: "ip={{ item.value.ipaddress0 }},gw=192.168.1.1"
+          net1: "virtio,bridge=vmbr1"
+        sshkeys: "{{ key_name }}"
+      loop: "{{ lookup('dict', vms) }}"
+      tags: [update]
+    - name: Start VMs
+      proxmox_kvm:
+        api_host: "{{ api_host }}"
+        api_password: "{{ api_password }}"
+        api_user: "{{ api_user }}"
+        vmid: "{{ item.value.vmid }}"
+        node: "{{ node }}"
+        state: started
+      loop: "{{ lookup('dict', vms) }}"
+      tags: [start]

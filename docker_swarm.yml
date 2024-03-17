@@ -1,0 +1,21 @@
+api_host: pve.dx.local
+api_user: root@pam
+api_password: Password
+node: pve
+clone_vm: rocky
+key_name: "ssh-rsa KEY= adm1n@LocalPC"
+vms:
+  node0:
+    name: swnode0.dx.local
+    ipaddress0: 192.168.1.150/24
+    vmid: 150
+    cores: 4
+    sockets: 1
+    memory: 4096
+  node1:
+    name: swnode1.dx.local
+    ipaddress0: 192.168.1.151/24
+    vmid: 151
+    cores: 4
+    sockets: 1
+    memory: 4096
