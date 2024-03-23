@@ -87,7 +87,7 @@ vms:
 
 Запускаем playbook
 ```bash
-ansible-playbook -i inventory new_dsw_nodes.yml
+ansible-playbook -i inventory create_swarm.yml
 ```
 Ждем завершения выполнения.
 DONE. Кластер готов к работе.
