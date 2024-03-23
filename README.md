@@ -1,7 +1,8 @@
 #docker #rhel #ansible
 
 ## Ansible playbook для создания кластера docker swarm.
-***
+
+### Подготовка cloud init шаблона
 Предварительно необходимо создать cloudinit шаблон.
 Подгатавливаем шаблон на гипервизоре proxmox на базе Debian.
 Устанавливаем дистрибутив обычным способом на vm в proxmox.
@@ -27,6 +28,8 @@ sudo apt install python3-proxmoxer
 sudo apt install python3-requests
 ```
 ***
+### Использование Playbook`а
+
 Клонируем репозиторий 
 ```bash
 git clone https://github.com/wshrd/docker_swarm_ansible_playbook
