@@ -1,21 +1,32 @@
-api_host: pve.dx.local
+api_host: ip_pve_node
 api_user: root@pam
-api_password: Password
-node: pve
-clone_vm: rocky
-key_name: "ssh-rsa KEY= adm1n@LocalPC"
+api_password: password
+node: name_pve_node
+clone_vm: cloud_init_template_name
+key_name: "ssh_key"
+gateway: gateway_ip
+dns: dns_ip
+docker_gpg: https://download.docker.com/linux/debian/gpg
+docker_repo: 'deb https://download.docker.com/linux/debian bookworm stable'
 vms:
   node0:
-    name: swnode0.dx.local
-    ipaddress0: 192.168.1.150/24
-    vmid: 150
-    cores: 4
+    name: dswnode0.dx.local
+    ipaddress: 192.168.1.250/24
+    vmid: 250
+    cores: 2
     sockets: 1
-    memory: 4096
+    memory: 2048
   node1:
-    name: swnode1.dx.local
-    ipaddress0: 192.168.1.151/24
-    vmid: 151
-    cores: 4
+    name: dswnode1.dx.local
+    ipaddress: 192.168.1.251/24
+    vmid: 251
+    cores: 2
     sockets: 1
-    memory: 4096
+    memory: 2048
+  node2:
+    name: dswnode2.dx.local
+    ipaddress: 192.168.1.252/24
+    vmid: 252
+    cores: 2
+    sockets: 1
+    memory: 2048

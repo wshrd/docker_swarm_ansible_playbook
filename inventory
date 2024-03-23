@@ -1,0 +1,6 @@
+[MasterSwarmNode]
+192.168.1.250 ansiblehost_ssh_host=192.168.1.250
+[WorkerSwarmNodes]
+192.168.1.251 ansiblehost_ssh_host=192.168.1.251
+192.168.1.252 ansiblehost_ssh_host=192.168.1.252
+
