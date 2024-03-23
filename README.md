@@ -1,7 +1,9 @@
 #docker #rhel #ansible
 
-
-Подгатавливаем шаблон на гипервизоре proxmox на базе Rocky Linux.
+## Ansible playbook для создания кластера docker swarm.
+***
+Предварительно необходимо создать cloudinit шаблон.
+Подгатавливаем шаблон на гипервизоре proxmox на базе Debian.
 Устанавливаем дистрибутив обычным способом на vm в proxmox.
 ```bash
 yum install cloud-init -y
@@ -24,86 +26,65 @@ ssh_pwauth: true
 sudo apt install python3-proxmoxer
 sudo apt install python3-requests
 ```
-Пишем docker_swarm.yml (описание переменных и vm) следующего содержания
-```yml
-api_host: pve.dx.local
+***
+Клонируем репозиторий 
+```bash
+git clone https://github.com/wshrd/docker_swarm_ansible_playbook
+cd docker_swarm_ansible_playbook/
+```
+***
+Указываем свои будущие узлы в инвентаре (можно по ip или по dns именам если они уже прописаны у вас в dns)
+```
+[MasterSwarmNode]
+192.168.1.250 ansiblehost_ssh_host=192.168.1.250
+[WorkerSwarmNodes]
+192.168.1.251 ansiblehost_ssh_host=192.168.1.251
+192.168.1.252 ansiblehost_ssh_host=192.168.1.252
+```
+***
+Указываем необходимые переменные в docker_swarm.yml
+Такие как ip адрес pve ноды, логин пароль, ssh ключ, имя cloud init шаблона, шлюз, днс, репозиторий docker и его gpg ключ 
+```
+api_host: ip_pve_node
 api_user: root@pam
-api_password: Password
-node: pve
-clone_vm: rocky
-key_name: "ssh-rsa KEY= adm1n@LocalPC"
+api_password: password
+node: name_pve_node
+clone_vm: cloud_init_template_name
+key_name: "ssh_key"
+gateway: gateway_ip
+dns: dns_ip
+docker_gpg: https://download.docker.com/linux/debian/gpg
+docker_repo: 'deb https://download.docker.com/linux/debian bookworm stable'
+```
+В секции vms описываются VM, их может быть разное количество, первая нода будет мастером остальные воркерами.
+```
 vms:
   node0:
-    name: swnode0.dx.local
-    ipaddress0: 192.168.1.150/24
-    vmid: 150
-    cores: 4
+    name: dswnode0.dx.local
+    ipaddress: 192.168.1.250/24
+    vmid: 250
+    cores: 2
     sockets: 1
-    memory: 4096
+    memory: 2048
   node1:
-    name: swnode1.dx.local
-    ipaddress0: 192.168.1.151/24
-    vmid: 151
-    cores: 4
+    name: dswnode1.dx.local
+    ipaddress: 192.168.1.251/24
+    vmid: 251
+    cores: 2
     sockets: 1
-    memory: 4096
+    memory: 2048
+  node2:
+    name: dswnode2.dx.local
+    ipaddress: 192.168.1.252/24
+    vmid: 252
+    cores: 2
+    sockets: 1
+    memory: 2048
 ```
-Создаем Playbook new_dsw_nodes.yml
-```yaml
----
-- name: Initial setup VM
-  hosts: localhost
-  vars_files:
-    - docker_swarm.yml
-  tasks:
-    - name: Clone VMs
-      proxmox_kvm:
-        node: "{{ node }}"
-        name: "{{ item.value.name }}"
-        newid: "{{ item.value.vmid }}"
-        api_user: "{{ api_user }}"
-        api_password: "{{ api_password }}"
-        api_host: "{{ api_host }}"
-        clone: "{{ clone_vm }}"
-        full: true
-        timeout: 500
-      loop: "{{ lookup('dict', vms) }}"
-      tags: [clone]
-    - name: Update VMs set IP and sshkeys
-      proxmox_kvm:
-        api_host: "{{ api_host }}"
-        api_user: "{{ api_user }}"
-        api_password: "{{ api_password }}"
-        cores: "{{ item.value.cores }}"
-        sockets: "{{ item.value.sockets }}"
-        memory: "{{ item.value.memory }}"
-        update: true
-        vmid: "{{ item.value.vmid }}"
-        node: "{{ node }}"
-        name: "{{ item.value.name }}"
-        nameservers: "192.168.1.4"
-        net:
-          net0: "virtio,bridge=vmbr0"
-        ipconfig:
-          ipconfig0: "ip={{ item.value.ipaddress0 }},gw=192.168.1.1"
-          net1: "virtio,bridge=vmbr1"
-        sshkeys: "{{ key_name }}"
-      loop: "{{ lookup('dict', vms) }}"
-      tags: [update]
-    - name: Start VMs
-      proxmox_kvm:
-        api_host: "{{ api_host }}"
-        api_password: "{{ api_password }}"
-        api_user: "{{ api_user }}"
-        vmid: "{{ item.value.vmid }}"
-        node: "{{ node }}"
-        state: started
-      loop: "{{ lookup('dict', vms) }}"
-      tags: [start]
-```
+***
 Запускаем playbook
 ```bash
-ansible-playbook new_dsw_node.yml
+ansible-playbook -i inventory new_dsw_nodes.yml
 ```
 Ждем завершения выполнения.
-DONE.
+DONE. Кластер готов к работе.
